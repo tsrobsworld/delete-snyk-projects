@@ -31,10 +31,13 @@ To use the utilities, you need to have a valid Snyk token. Ensure that your envi
 
 ## Example
 
-To delete projects from a Snyk organization or group, use the `delete_projects` function:
-    ```bash
-    python index.py --help
+To delete projects from a Snyk organization or group, use the `delete_projects` function
 
-    python index.py <snyk_id> <group_or_organization> <snyk_integration_type> --dry-run
-    ```
+```bash
+python index.py --help
+
+python index.py <snyk_id> <group_or_organization> <snyk_integration_type> --dry-run
+```
+    
+
 
