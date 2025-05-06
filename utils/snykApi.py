@@ -1,6 +1,6 @@
 from time import sleep
 import requests
-
+import json
 from utils.helper import get_snyk_token
 
 SNYK_TOKEN = get_snyk_token()
@@ -44,14 +44,18 @@ def get_snyk_projects_by_type(org_id, project_type):
     while has_next_link:
         try:
             projects_response = requests.get(url, headers=rest_headers)
-            projects_data = projects_response.json()['data']
-            projects_data.extend(projects_data) 
+            response_json = projects_response.json()
+            print(json.dumps(response_json, indent=4))
+            if 'data' in response_json:
+                projects_data.extend(response_json['data'])
+            else:
+                projects_data.extend(response_json)
             if projects_response.status_code == 429:
                 print(f"Rate limit exceeded. Waiting for 60 seconds.")
                 sleep(61)
                 continue
-            if 'next' in projects_response.json()['links']:
-                url = 'https://api.snyk.io' + projects_response.json()['links']['next']
+            if 'next' in response_json.get('links', {}):
+                url = 'https://api.snyk.io' + response_json['links']['next']
             else:
                 has_next_link = False
                 return projects_data
