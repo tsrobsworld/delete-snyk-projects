@@ -18,7 +18,6 @@ def delete_projects(snyk_id, group_or_organization, snyk_integration_type, dry_r
     if group_or_organization.lower() == "organization" or group_or_organization.lower() == "org":
         project_data = get_snyk_projects_by_type(snyk_id, snyk_integration_type, region)
         for project in project_data:
-            print(json.dumps(project, indent=4))
             project_id_list.append({
                 'project_id': project['id'],
                 'org_id': project['relationships']['organization']['data']['id']

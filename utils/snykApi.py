@@ -25,7 +25,7 @@ def get_snyk_orgs(groupId, region):
                 sleep(61)
                 continue
             if 'next' in orgs_response.json()['links']:
-                url = 'https://api.snyk.io' + orgs_response.json()['links']['next']
+                url = f'https://{region}' + orgs_response.json()['links']['next']
             else:
                 has_next_link = False
                 return orgs_data
@@ -53,7 +53,7 @@ def get_snyk_projects_by_type(org_id, project_type, region):
                 sleep(61)
                 continue
             if 'next' in response_json.get('links', {}):
-                url = 'https://api.snyk.io' + response_json['links']['next']
+                url = f'https://{region}' + response_json['links']['next']
             else:
                 has_next_link = False
                 return projects_data
