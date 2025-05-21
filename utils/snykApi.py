@@ -43,7 +43,6 @@ def get_snyk_projects_by_type(org_id, project_type, region):
         try:
             projects_response = requests.get(url, headers=rest_headers)
             response_json = projects_response.json()
-            print(json.dumps(response_json, indent=4))
             if 'data' in response_json:
                 projects_data.extend(response_json['data'])
             else:
