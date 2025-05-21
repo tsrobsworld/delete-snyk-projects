@@ -54,8 +54,6 @@ def delete_projects_for_integration_type(
     print(f"Deleting projects in the Snyk organization ID: {snyk_id}, "
           f"At the level of: {group_or_organization}, "
           f"With the integration type: {snyk_integration_type}")
-    print(f"type of dry_run: {type(dry_run)}")
-    print(f"dry_run: {dry_run}")
     if group_or_organization.lower() == "group" or group_or_organization.lower() == "organization" or group_or_organization.lower() == "org":
         delete_projects(snyk_id, group_or_organization, snyk_integration_type, dry_run, region, debug)
     else:
