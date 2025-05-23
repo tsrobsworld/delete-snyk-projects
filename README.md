@@ -1,6 +1,6 @@
-# Snyk Delete Projects
+# Snyk Delete Targets and Projects
 
-This repository contains a CLI tool for deleting projects from Snyk based on the integration type.
+This repository contains a CLI tool for deleting targets and projects from Snyk based on the integration type.
 
 ## Table of Contents
 

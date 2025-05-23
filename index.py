@@ -1,43 +1,42 @@
 import typer
 import json
-from utils.snykApi import get_snyk_orgs, get_snyk_projects_by_type, delete_snyk_project
+from utils.snykApi import get_snyk_orgs, get_snyk_targets_by_type, delete_snyk_target
 app = typer.Typer()
 
-def delete_projects(snyk_id, group_or_organization, snyk_integration_type, dry_run, region, debug):
-    project_id_list = []
+def delete_targets_by_type(snyk_id, group_or_organization, snyk_integration_type, dry_run, region, debug):
+    target_id_list = []
     if group_or_organization.lower() == "group":
         snyk_orgs = get_snyk_orgs(snyk_id, region)
         for org in snyk_orgs:
-            project_data = get_snyk_projects_by_type(org['id'], snyk_integration_type, region)
+            target_data = get_snyk_targets_by_type(org['id'], snyk_integration_type, region)
             if debug:
-                print(f"Project data for org: {org['id']}")
-                print(json.dumps(project_data, indent=4))
-            for project in project_data:
-                project_id_list.append({
-                    'project_id': project['id'],
-                    'org_id': project['relationships']['organization']['data']['id']
+                print(f"Target data for org: {org['id']}")
+                print(json.dumps(target_data, indent=4))
+            for target in target_data:
+                target_id_list.append({
+                    'target_id': target['id'],
+                    'org_id': target['relationships']['organization']['data']['id']
                 })
 
     if group_or_organization.lower() == "organization" or group_or_organization.lower() == "org":
-        project_data = get_snyk_projects_by_type(snyk_id, snyk_integration_type, region)
-        for project in project_data:
+        target_data = get_snyk_targets_by_type(snyk_id, snyk_integration_type, region)
+        for target in target_data:
             if debug:
-                print(f"Project data for org: {snyk_id}")
-                print(json.dumps(project, indent=4))
-            project_id_list.append({
-                'project_id': project['id'],
-                'org_id': project['relationships']['organization']['data']['id']
+                print(f"Target data for org: {snyk_id}")
+                print(json.dumps(target, indent=4))
+            target_id_list.append({
+                'target_id': target['id'],
+                'org_id': target['relationships']['organization']['data']['id']
             })
-    print(type(dry_run))
     if dry_run:
-        print(json.dumps(project_id_list, indent=4))
-        print(f"Dry run complete. Would have deleted {len(project_id_list)} projects.")
+        print(json.dumps(target_id_list, indent=4))
+        print(f"Dry run complete. Would have deleted {len(target_id_list)} targets.")
     else:
-        for project in project_id_list:
-            print(f"Deleting Project ID: {project['project_id']} from Org ID: {project['org_id']}")
+        for target in target_id_list:
+            print(f"Deleting Target ID: {target['target_id']} from Org ID: {target['org_id']}")
             if debug:
-                print(json.dumps(project, indent=4))
-            delete_snyk_project(project['org_id'], project['project_id'], region)
+                print(json.dumps(target, indent=4))
+            delete_snyk_target(target['org_id'], target['target_id'], region)
 
 @app.command()
 def delete_projects_for_integration_type(
@@ -55,7 +54,7 @@ def delete_projects_for_integration_type(
           f"At the level of: {group_or_organization}, "
           f"With the integration type: {snyk_integration_type}")
     if group_or_organization.lower() == "group" or group_or_organization.lower() == "organization" or group_or_organization.lower() == "org":
-        delete_projects(snyk_id, group_or_organization, snyk_integration_type, dry_run, region, debug)
+        delete_targets_by_type(snyk_id, group_or_organization, snyk_integration_type, dry_run, region, debug)
     else:
         print("Invalid group or organization level. Please specify 'group', 'organization', or 'org'.")
         typer.Exit(1)

@@ -33,42 +33,59 @@ def get_snyk_orgs(groupId, region):
             print(f"Error getting orgs for group {groupId}: {e}")
             return []
 
-# Get cpp projects from all Snyk Orgs.
-def get_snyk_projects_by_type(org_id, project_type, region):
-    print(f"Collecting snyk projects for organization id: {org_id} by type {project_type}")
-    url = f'https://{region}/rest/orgs/{org_id}/projects?version={rest_version}&limit=100&origins={project_type}'
+# Get targets from all Snyk Orgs by source type.
+def get_snyk_targets_by_type(org_id, target_type, region):
+    print(f"Collecting snyk targets for organization id: {org_id} by type {target_type}")
+    url = f'https://{region}/rest/orgs/{org_id}/targets?version={rest_version}&limit=100&source_types={target_type}&exclude_empty=false'
     has_next_link = True
-    projects_data = []
+    targets_data = []
     while has_next_link:
         try:
-            projects_response = requests.get(url, headers=rest_headers)
-            response_json = projects_response.json()
-            if 'data' in response_json:
-                projects_data.extend(response_json['data'])
+            targets_response = requests.get(url, headers=rest_headers)
+            targets_json = targets_response.json()
+            if 'data' in targets_json:
+                targets_data.extend(targets_json['data'])
             else:
-                projects_data.extend(response_json)
-            if projects_response.status_code == 429:
+                targets_data.extend(targets_json)
+            if targets_response.status_code == 429:
                 print(f"Rate limit exceeded. Waiting for 60 seconds.")
                 sleep(61)
                 continue
-            if 'next' in response_json.get('links', {}):
-                url = f'https://{region}' + response_json['links']['next']
+            if 'next' in targets_json.get('links', {}):
+                url = f'https://{region}' + targets_json['links']['next']
             else:
                 has_next_link = False
-                return projects_data
+                return targets_data
         except requests.RequestException as e:
-            print(f"Error getting projects for {org_id} by type {project_type}: {e}")
+            print(f"Error getting targets for {org_id} by type {target_type}: {e}")
             return []
 
 
 # Deletes a Snyk project
-def delete_snyk_project(org_id, project_id, region):
-    print(f"Deleting Snyk project.  Project ID: {project_id}")
-    url = f'https://{region}/v1/org/{org_id}/project/{project_id}'
-        
-    try:
-        delete_project_response = requests.delete(url, headers=v1Headers, data={})
-        if delete_project_response.status_code == 200:
-            print("Project successfully deleted.")    
-    except:
-        print(f"Delete project endpoint failed with the following error code: {delete_project_response.status_code}.  Here is the error: {delete_project_response} ") 
+def delete_snyk_target(org_id, target_id, region):
+    print(f"Deleting Snyk target.  Target ID: {target_id}")
+    url = f'https://{region}/rest/orgs/{org_id}/targets/{target_id}?version={rest_version}'
+    retry_count = 0
+    while retry_count < 3: 
+        try:
+            delete_target_response = requests.delete(url, headers=v1Headers, data={})
+            if delete_target_response.status_code == 204:
+                print("Target successfully deleted.")
+                return
+            if delete_target_response.status_code == 429:
+                print("Rate limit exceeded. Waiting for 60 seconds.")
+                sleep(61)
+                retry_count += 1
+                continue
+            else:
+                print(f"Delete target endpoint failed with status code: {delete_target_response.status_code}. Response: {delete_target_response.text}")
+                return
+        except Exception as e:
+            print(f"Error occurred while deleting target: {str(e)}")
+            retry_count += 1
+            if retry_count < 3:
+                print("Retrying...")
+                sleep(61)
+            else:
+                print("Max retries reached. Giving up.")
+                return 
