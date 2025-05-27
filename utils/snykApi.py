@@ -12,23 +12,23 @@ rest_version = '2024-10-15'
 # Return all Snyk orgs in group
 def get_snyk_orgs(groupId, region):
     print(f"Collecting snyk organization data for {groupId}")
-    url = f'https://{region}/rest/groups/{groupId}/orgs?version={rest_version}&limit=100'
+    url = f'https://{region}/rest/groups/{groupId}/orgs?version={rest_version}&limit=10'
     has_next_link = True
-    orgs_data = []
+    data = []
     while has_next_link:
         try:
             orgs_response = requests.get(url, headers=rest_headers)
             orgs_data = orgs_response.json()['data']
-            orgs_data.extend(orgs_data)
+            data.extend(orgs_data)
             if orgs_response.status_code == 429:
                 print(f"Rate limit exceeded. Waiting for 60 seconds.")
                 sleep(61)
                 continue
-            if 'next' in orgs_response.json()['links']:
+            try:
                 url = f'https://{region}' + orgs_response.json()['links']['next']
-            else:
+            except:
                 has_next_link = False
-                return orgs_data
+                return data
         except requests.RequestException as e:
             print(f"Error getting orgs for group {groupId}: {e}")
             return []
