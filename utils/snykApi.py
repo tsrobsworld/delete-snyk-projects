@@ -11,7 +11,7 @@ rest_version = '2024-10-15'
 
 # Return all Snyk orgs in group
 def get_snyk_orgs(groupId, region):
-    print(f"Collecting snyk organization targets for {groupId}")
+    print(f"Collecting snyk organization data for {groupId}")
     url = f'https://{region}/rest/groups/{groupId}/orgs?version={rest_version}&limit=100'
     has_next_link = True
     orgs_data = []

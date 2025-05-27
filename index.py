@@ -7,6 +7,8 @@ def delete_targets_by_type(snyk_id, group_or_organization, snyk_integration_type
     target_id_list = []
     if group_or_organization.lower() == "group":
         snyk_orgs = get_snyk_orgs(snyk_id, region)
+        if debug:
+            print(f"Snyk orgs data: {json.dumps(snyk_orgs, indent=4)}")
         for org in snyk_orgs:
             target_data = get_snyk_targets_by_type(org['id'], snyk_integration_type, region)
             if debug:
