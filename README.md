@@ -38,6 +38,7 @@ To use the utilities, you need to have a valid Snyk token. Ensure that your envi
 | `snyk_integration_type` | Required Argument | - | Specify the integration type to delete projects for. Examples: 'github', 'github-enterprise', 'gitlab', 'azure-repos', 'bitbucket-server', 'bitbucket-cloud', 'cli' |
 | `--dry-run` | Flag | False | Perform a dry run without actually deleting projects |
 | `--region` | String | 'api.us.snyk.io' | Specify the region to delete projects for. Examples: 'api.snyk.io', 'api.us.snyk.io', 'api.eu.snyk.io', 'api.au.snyk.io' |
+| `--target-name` | String | None | Filter targets by name before deletion. Example: 'my-github-repo' |
 | `--debug` | Flag | False | Enable debug mode to show detailed project information |
 
 ## Example
@@ -51,11 +52,14 @@ python index.py --help
 # Dry run example
 python index.py <snyk_id> <group_or_organization> <snyk_integration_type> --dry-run
 
+# Filter by target name example
+python index.py <snyk_id> <group_or_organization> <snyk_integration_type> --target-name "my-repo"
+
 # Debug mode example
 python index.py <snyk_id> <group_or_organization> <snyk_integration_type> --debug
 
 # Full example with all options
-python index.py <snyk_id> <group_or_organization> <snyk_integration_type> --dry-run --region api.us.snyk.io --debug
+python index.py <snyk_id> <group_or_organization> <snyk_integration_type> --dry-run --region api.us.snyk.io --target-name "my-repo" --debug
 ```
     
 

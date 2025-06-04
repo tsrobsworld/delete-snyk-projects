@@ -3,14 +3,14 @@ import json
 from utils.snykApi import get_snyk_orgs, get_snyk_targets_by_type, delete_snyk_target
 app = typer.Typer()
 
-def delete_targets_by_type(snyk_id, group_or_organization, snyk_integration_type, dry_run, region, debug):
+def delete_targets_by_type(snyk_id, group_or_organization, snyk_integration_type, dry_run, region, target_filter_name, debug):
     target_id_list = []
     if group_or_organization.lower() == "group":
         snyk_orgs = get_snyk_orgs(snyk_id, region)
         if debug:
             print(f"Snyk orgs data: {json.dumps(snyk_orgs, indent=4)}")
         for org in snyk_orgs:
-            target_data = get_snyk_targets_by_type(org['id'], snyk_integration_type, region)
+            target_data = get_snyk_targets_by_type(org['id'], snyk_integration_type, target_filter_name, region)
             if debug:
                 print(f"Target data for org: {org['id']}")
                 print(json.dumps(target_data, indent=4))
@@ -21,7 +21,7 @@ def delete_targets_by_type(snyk_id, group_or_organization, snyk_integration_type
                 })
 
     if group_or_organization.lower() == "organization" or group_or_organization.lower() == "org":
-        target_data = get_snyk_targets_by_type(snyk_id, snyk_integration_type, region)
+        target_data = get_snyk_targets_by_type(snyk_id, snyk_integration_type, target_filter_name, region)
         for target in target_data:
             if debug:
                 print(f"Target data for org: {snyk_id}")
@@ -47,6 +47,7 @@ def delete_projects_for_integration_type(
     snyk_integration_type: str = typer.Argument(..., help="Specify the integration type to delete projects for.  Example: 'github, github-enterprise, gitlab, azure-repos, bitbucket-server, bitbucket-cloud, cli, etc'"),
     dry_run: bool = typer.Option(False, "--dry-run", help="Dry run the deletion of projects.  Example: --dry-run"),
     region: str = typer.Option('api.us.snyk.io', "--region", help="Specify the region to delete projects for.  Example: 'api.snyk.io, api.us.snyk.io, api.eu.snyk.io, api.au.snyk.io'"),
+    target_filter_name: str = typer.Option(None, "--target-name", help="Specify the target name to filter projects for deletion.  Example: 'github-enterprise'"),
     debug: bool = typer.Option(False, "--debug", help="Debug the deletion of projects.  Example: --debug")
 ):
     """
@@ -56,7 +57,7 @@ def delete_projects_for_integration_type(
           f"At the level of: {group_or_organization}, "
           f"With the integration type: {snyk_integration_type}")
     if group_or_organization.lower() == "group" or group_or_organization.lower() == "organization" or group_or_organization.lower() == "org":
-        delete_targets_by_type(snyk_id, group_or_organization, snyk_integration_type, dry_run, region, debug)
+        delete_targets_by_type(snyk_id, group_or_organization, snyk_integration_type, dry_run, region, target_filter_name, debug)
     else:
         print("Invalid group or organization level. Please specify 'group', 'organization', or 'org'.")
         typer.Exit(1)

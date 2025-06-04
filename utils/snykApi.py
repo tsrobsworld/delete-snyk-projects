@@ -34,9 +34,11 @@ def get_snyk_orgs(groupId, region):
             return []
 
 # Get targets from all Snyk Orgs by source type.
-def get_snyk_targets_by_type(org_id, target_type, region):
+def get_snyk_targets_by_type(org_id, target_type, target_filter_name, region):
     print(f"Collecting snyk targets for organization id: {org_id} by type {target_type}")
     url = f'https://{region}/rest/orgs/{org_id}/targets?version={rest_version}&limit=100&source_types={target_type}&exclude_empty=false'
+    if target_filter_name:
+        url += f'&display_name={target_filter_name}'
     has_next_link = True
     targets_data = []
     while has_next_link:
